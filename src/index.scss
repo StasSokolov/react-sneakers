@@ -1,0 +1,58 @@
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #e7f6ff;
+}
+
+.wrapper {
+  background: #FFFFFF;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.04);
+  border-radius: 20px;
+  max-width: 1080px;
+  margin: 50px auto;
+}
+
+.header {
+  border-bottom: 1px solid #EAEAEA;
+
+  h3, p {
+    margin: 0;
+  }
+}
+
+.content {
+  h1 {
+    margin: 0;
+  }
+
+  &-card {
+    max-width: 210px;
+    padding: 20px;
+    margin-right: 30px;
+    box-sizing: border-box;
+    border-radius: 40px;
+    border: 1.3px solid #F3F3F3;
+
+    h5 {
+      font-weight: 400;
+      font-size: 14px;
+    }
+
+    &-info {
+      p {
+        font-size: 12px;
+      }
+      p, b {
+        margin: 0;
+      }
+      button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+      }
+    }
+  }
+
+}
