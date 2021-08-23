@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from "react";
-import Card from "./components/Card/Card";
 import Header from "./components/Header/Header";
 import Basket from "./components/Basket/Basket";
 import axios from "axios";
-import style from "./components/Basket/Basket.module.scss";
+import {Route} from "react-router";
+import Home from "./pages/Home";
+import Favorites from "./pages/Favorites";
+import {AppContext} from "./context";
 
 
 const App = () => {
@@ -11,26 +13,56 @@ const App = () => {
     const [basketItems, setBasketItems] = useState([])
     const [searchValue, setSearchValue] = useState('')
     const [cartOpened, setCartOpened] = useState(false)
+    const [favorites, setFavorites] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        axios.get('https://6122542dd980b40017e09224.mockapi.io/items')
-            .then(response => {
-                setItems(response.data)
-            })
-        axios.get('https://6122542dd980b40017e09224.mockapi.io/cart')
-            .then(response => {
-                setBasketItems(response.data)
-            })
+        async function fetchData() {
+            const cartResponse = await axios.get('https://6122542dd980b40017e09224.mockapi.io/cart')
+            const favoriteResponse = await axios.get('https://6122542dd980b40017e09224.mockapi.io/favorite')
+            const itemsResponse = await axios.get('https://6122542dd980b40017e09224.mockapi.io/items')
+
+            setIsLoading(false)
+
+            setBasketItems(cartResponse.data)
+            setFavorites(favoriteResponse.data)
+            setItems(itemsResponse.data)
+        }
+
+        fetchData()
     }, [])
 
     const onAddToCart = (obj) => {
-        setBasketItems((prevState) => [...prevState, obj])
-        axios.post('https://6122542dd980b40017e09224.mockapi.io/cart', obj)
+        try {
+            if (basketItems.find(item => item.id == obj.id)) {
+                setBasketItems(prev => prev.filter(item => item.id !== obj.id))
+                axios.delete(`https://6122542dd980b40017e09224.mockapi.io/cart/${obj.id}`)
+            } else {
+                axios.post('https://6122542dd980b40017e09224.mockapi.io/cart', obj)
+                setBasketItems((prevState) => [...prevState, obj])
+            }
+        } catch (error) {
+
+        }
     }
 
     const removeItemBasket = (id) => {
         axios.delete(`https://6122542dd980b40017e09224.mockapi.io/cart/${id}`)
         setBasketItems(prevState => prevState.filter(prevItem => prevItem.id !== id))
+    }
+
+    const onAddFavorite = async (obj) => {
+        try {
+            if (favorites.find(item => item.id === obj.id)) {
+                axios.delete(`https://6122542dd980b40017e09224.mockapi.io/favorite/${obj.id}`)
+                setFavorites(prev => prev.filter(item => item.id !== obj.id))
+            } else {
+                const response = await axios.post(`https://6122542dd980b40017e09224.mockapi.io/favorite`, obj)
+                setFavorites(prevItems => [...prevItems, response.data])
+            }
+        } catch (error) {
+            console.log('Не удалось добавить в избранное!')
+        }
     }
 
     const onSearchItem = (e) => {
@@ -41,29 +73,42 @@ const App = () => {
         setSearchValue('')
     }
 
+    const getAddedItems = (id) => {
+        return basketItems.some(obj => obj.id == id)
+    }
+
     return (
-        <div className='wrapper clear'>
-            {cartOpened &&
-            <Basket items={basketItems} removeItemBasket={removeItemBasket} onClose={() => setCartOpened(false)}/>}
-            <Header onClickCart={() => setCartOpened(true)}/>
-            <div className='content p-40'>
-                <div className='d-flex justify-between align-center mb-40'>
-                    <h1>{searchValue ? `Поиск по запросу: '${searchValue}'` : 'Все кроссовки'}</h1>
-                    <div className='search-block'>
-                        <img src="/img/search.svg" alt="Search"/>
-                        {searchValue && <img onClick={clearSearch} className='clear' src="img/delete.svg" alt="clear"/>}
-                        <input value={searchValue} onChange={onSearchItem} type="text" placeholder='Поиск....'/>
-                    </div>
-                </div>
-                <div className='d-flex flex-wrap'>
-                    {items
-                        .filter(item => item.name.toLowerCase().includes(searchValue))
-                        .map(({name, id, price, img}) => {
-                            return <Card key={id} name={name} id={id} price={price} img={img} onPlus={onAddToCart}/>
-                        })}
-                </div>
+        <AppContext.Provider value={{
+            items,
+            favorites,
+            basketItems,
+            setBasketItems,
+            searchValue,
+            clearSearch,
+            cartOpened,
+            isLoading,
+            onAddFavorite,
+            onAddToCart,
+            onSearchItem,
+            getAddedItems,
+            onClose: () => setCartOpened(false)
+        }}>
+            <div className='wrapper clear'>
+                {cartOpened &&
+                <Basket items={basketItems} removeItemBasket={removeItemBasket} onClose={() => setCartOpened(false)}/>}
+                <Header onClickCart={() => setCartOpened(true)}/>
+                <Route exact path='/'>
+                    <Home/>
+                </Route>
+                <Route path='/favorites'>
+                    <Favorites/>
+                </Route>
+                <Route path='/orders'>
+                    Мои заказы
+                </Route>
+
             </div>
-        </div>
+        </AppContext.Provider>
     );
 }
 

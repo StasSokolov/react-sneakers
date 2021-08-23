@@ -1,35 +1,43 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import style from './Card.module.scss'
+import Preloader from "../Preloader/Preloader";
+import {AppContext} from "../../context";
 
-const Card = ({name, price, img, id, onPlus}) => {
-    const [checked, setChecked] = useState(false)
-    const [favorite, setFavorite] = useState(false)
+const Card = ({name, price, img, id, onPlus, isLoading, onFavorite, favorited = false}) => {
+    const [favorite, setFavorite] = useState(favorited)
+    const {getAddedItems} = useContext(AppContext)
 
     const onAddCart = (obj) => {
         onPlus(obj)
-        setChecked(!checked)
+        getAddedItems(obj.id)
     }
 
-    const onAddFavorite = () => {
+    const onAddFavorite = (obj) => {
+        onFavorite(obj)
         setFavorite(!favorite)
     }
 
     return (
-        <div className={style.content_card}>
-            <div className={style.content_card_like}>
-                <img onClick={onAddFavorite} width={35} height={35} src={favorite ? "/img/like-card-active.svg" : "/img/like-card.svg"} alt="Like"/>
-            </div>
-            <img width={133} height={112} src={img} alt="shoes"/>
-            <h5>{name}</h5>
-            <div className={style.content_card_info}>
-                <div>
-                    <p>Цена:</p>
-                    <b>{price}</b>
+            isLoading ?
+                <Preloader />
+                :
+                <div className={style.content_card}>
+                    <div className={style.content_card_like}>
+                        <img onClick={() => onAddFavorite({name, price, img, id})} width={35} height={35}
+                             src={favorite ? "/img/like-card-active.svg" : "/img/like-card.svg"} alt="Like"/>
+                    </div>
+                    <img width={133} height={112} src={img} alt="shoes"/>
+                    <h5>{name}</h5>
+                    <div className={style.content_card_info}>
+                        <div>
+                            <p>Цена:</p>
+                            <b>{price}</b>
+                        </div>
+                        <img onClick={() => onAddCart({name, price, img, id})} className='cu-p'
+                             src={getAddedItems(id) ? "/img/added.svg" : "/img/add.svg"} alt="add"/>
+                    </div>
                 </div>
-                <img onClick={() => onAddCart({name, price, img, id})} className='cu-p' src={checked ? "/img/added.svg" : "/img/add.svg"} alt="add"/>
-            </div>
-        </div>
     )
 }
 
-export default Card;
+    export default Card;

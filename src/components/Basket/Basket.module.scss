@@ -82,11 +82,7 @@
   .greenButton {
     position: relative;
 
-    &:hover {
-      img {
-        transform: translateX(5px);
-      }
-    }
+
 
     img {
       position: absolute;
@@ -94,5 +90,18 @@
       top: 22px;
       transition: transform .15s ease-in-out;
     }
+  }
+}
+
+.basketEmpty {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  flex-direction: column;
+  button {
+    margin-top: 20px;
+    width: 245px;
   }
 }
