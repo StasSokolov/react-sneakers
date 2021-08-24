@@ -6,6 +6,15 @@
   width: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1;
+  visibility: hidden;
+}
+
+.overlayVisible {
+  visibility: visible;
+
+  .drawer {
+    transform: translate(0);
+  }
 }
 
 .drawer {
@@ -18,6 +27,8 @@
   background: #FFFFFF;
   box-shadow: -10px 4px 24px rgba(0, 0, 0, 0.1);
   padding: 30px;
+  transform: translate(100%);
+  transition: visibility .5s ease-in-out;
 
 
   .items {
@@ -40,6 +51,7 @@
   &_info {
     margin-left: 20px;
     margin-right: 10px;
+
     h5 {
       font-weight: 400;
       font-size: 15px;
@@ -83,7 +95,6 @@
     position: relative;
 
 
-
     img {
       position: absolute;
       right: 35px;
@@ -100,6 +111,7 @@
   justify-content: center;
   flex: 1;
   flex-direction: column;
+
   button {
     margin-top: 20px;
     width: 245px;

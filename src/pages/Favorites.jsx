@@ -4,13 +4,14 @@ import {AppContext} from "../context";
 import Info from "../components/Info/Info";
 
 const Favorites = () => {
-    const state = useContext(AppContext)
+    const {favorites, onAddFavorite, onAddToCart} = useContext(AppContext)
     const renderItems = () => {
-        return state.favorites
+        return favorites
             .map((item) => {
-                return <Card onFavorite={state.onAddFavorite}
+                return <Card onFavorite={onAddFavorite}
                              key={item.id}
                              favorited={true}
+                             onPlus={onAddToCart}
                              {...item}
                 />
             })
@@ -22,7 +23,7 @@ const Favorites = () => {
                 <h1>Мои закладки</h1>
             </div>
             <div className='d-flex flex-wrap'>
-                {state.favorites.length > 0 ?
+                {favorites.length > 0 ?
                     renderItems() :
                     <Info image='/img/sad.png' description='Вы ничего не добавляли в закладки' title='Закладок нет :('/>}
             </div>

@@ -1,17 +1,17 @@
-import React, {useContext, useState} from "react";
+import React, {useState} from "react";
 import style from './Basket.module.scss'
 import Info from "../Info/Info";
-import {AppContext} from "../../context";
 import axios from "axios";
+import useCart from "../../hooks/useCart";
 
-const Basket = ({onClose, removeItemBasket, items = []}) => {
+const Basket = ({onClose, removeItemBasket, items = [], opened}) => {
     const [isCompleted, setIsCompleted] = useState(false)
     const [orderID, setOrderID] = useState(null)
-    const {basketItems, setBasketItems} = useContext(AppContext)
+    const {basketItems, setBasketItems, totalPrice} = useCart()
 
     const onClickOrder = async () => {
         try {
-            const response = await axios.post('https://6122542dd980b40017e09224.mockapi.io/orders', basketItems)
+            const response = await axios.post('https://6122542dd980b40017e09224.mockapi.io/orders', {items: basketItems})
             setOrderID(response.data.id)
             setIsCompleted(true)
             setBasketItems([])
@@ -25,7 +25,7 @@ const Basket = ({onClose, removeItemBasket, items = []}) => {
     }
 
     return (
-        <div className={style.overlay}>
+        <div className={`${style.overlay}  ${opened ? style.overlayVisible : ' '}`}>
             <div className={style.drawer}>
                 <h2 className='d-flex justify-between mb-30'>Корзина <img onClick={onClose} className='cu-p'
                                                                           src="img/delete.svg" alt="delete"/>
@@ -55,12 +55,12 @@ const Basket = ({onClose, removeItemBasket, items = []}) => {
                                 <li>
                                     <span>Итого: </span>
                                     <div/>
-                                    <b>21 498 руб. </b>
+                                    <b>{totalPrice} руб. </b>
                                 </li>
                                 <li>
                                     <span>Налог 5%: </span>
                                     <div></div>
-                                    <b>1074 руб. </b>
+                                    <b>{(totalPrice / 100) * 5} руб. </b>
                                 </li>
                             </ul>
                             <button onClick={onClickOrder} className='greenButton'>Оформить заказ <img
